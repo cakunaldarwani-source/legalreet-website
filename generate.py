@@ -895,6 +895,7 @@ CHECK_ICON = '''<svg class="seal verify-seal" viewBox="0 0 100 100" fill="none" 
 FAVICON = '<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%E2%9A%96%EF%B8%8F%3C/text%3E%3C/svg%3E">'
 
 SITE_URL = "https://www.legalreet.com"
+GOOGLE_FONTS_URL = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap"
 WHATSAPP_NUMBER = "919368375024"
 
 ORG_SCHEMA = {
@@ -1078,7 +1079,9 @@ def page(title, description, active, depth, body, schemas=None, folder=None):
 {FAVICON}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="{GOOGLE_FONTS_URL}">
+<link rel="stylesheet" href="{GOOGLE_FONTS_URL}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{GOOGLE_FONTS_URL}"></noscript>
 <link rel="stylesheet" href="{p}assets/style.css">
 {schema_tags}
 </head>
@@ -1098,7 +1101,7 @@ if (/(invite_token|recovery_token|confirmation_token|email_change_token)=/.test(
   document.head.appendChild(s);
 }}
 </script>
-<script src="{p}assets/script.js"></script>
+<script src="{p}assets/script.js" defer></script>
 </body>
 </html>'''
 
