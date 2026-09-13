@@ -1,0 +1,33 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "content/blog/uploads"
+public_folder: "/content/blog/uploads"
+
+collections:
+  - name: "blog"
+    label: "Blog Posts"
+    label_singular: "Blog Post"
+    folder: "content/blog"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}} — {{date}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "date", format: "YYYY-MM-DD" }
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "One or two sentences shown on the blog index card and in Google search results." }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options:
+          - "Business Registration & Startup Setup"
+          - "GST & Taxation"
+          - "Trademark & Intellectual Property"
+          - "ROC & Corporate Compliance"
+          - "Licenses & Government Registrations"
+          - "NGO & Non-Profit Registration"
+          - "HR & Payroll"
+          - "Legal Documentation & Agreements"
+          - "Fundraising & Advisory"
+      - { label: "Body", name: "body", widget: "markdown" }
