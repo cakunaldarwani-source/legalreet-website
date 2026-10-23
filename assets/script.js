@@ -106,6 +106,27 @@
   var src=(ledger||table)&&(ledger||table).getAttribute('data-compliance-src');
   if(src && window.fetch){ fetch(src,{cache:'no-cache'}).then(function(r){ return r.ok?r.json():null; }).then(function(d){ if(d&&d.items) render(d.items); }).catch(function(){}); }
 
+
+  // ---- enquiry forms: submit to Netlify Forms in the background; if that fails,
+  // hand the same details to WhatsApp so a lead is never lost.
+  document.querySelectorAll('form.enquiry').forEach(function(form){
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      var btn = form.querySelector('button[type=submit]'), fd = new FormData(form);
+      if ((fd.get('company_website')||'').trim()) { location.href = '/thank-you.html'; return; }
+      if (btn){ btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Sending…'; }
+      function viaWhatsApp(){
+        var lines = ['New enquiry from legalreet.com'];
+        [['name','Name'],['phone','Mobile'],['email','Email'],['service','Service'],['city','City'],['message','Message']].forEach(function(f){ var v=(fd.get(f[0])||'').toString().trim(); if(v) lines.push(f[1]+': '+v); });
+        location.href = 'https://wa.me/919368375024?text=' + encodeURIComponent(lines.join('\n'));
+      }
+      fetch('/', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:new URLSearchParams(fd).toString() })
+        .then(function(r){ if (r.ok) location.href = '/thank-you.html'; else viaWhatsApp(); })
+        .catch(viaWhatsApp);
+    });
+  });
+
   // ---- cookie consent
   var KEY='legalreet_consent', banner=document.getElementById('cookieBanner'), stored=null;
   try { stored = localStorage.getItem(KEY); } catch(e){}
