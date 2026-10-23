@@ -74,7 +74,9 @@
   function el(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
   function applyLedger(){
     if(!ledger) return; var n=+ledger.getAttribute('data-upcoming')||6, shown=0;
-    ledger.querySelectorAll('li').forEach(function(li){ var ok=dt(li.dataset.date)>=today && shown<n; if(ok) shown++; li.hidden=!ok; });
+    ledger.querySelectorAll('li').forEach(function(li){ var d=dt(li.dataset.date), ok=d>=today && shown<n; if(ok) shown++; li.hidden=!ok;
+      if(ok){ var days=Math.round((d-today)/864e5), tag=li.querySelector('.left'); if(!tag){ tag=el('em','left'); li.appendChild(tag); }
+        tag.textContent = days===0?'Today':days===1?'Tomorrow':'In '+days+' days'; tag.classList.toggle('soon', days<=3); } });
   }
   function applyTable(){
     if(!table) return; var any=false;

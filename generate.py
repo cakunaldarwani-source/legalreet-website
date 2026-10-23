@@ -506,11 +506,12 @@ def build_home(posts, news):
   {section_head("Popular services", "What most of our clients come to us for", link=("Browse all services", "/services/index.html"))}
   <div class="svc-grid">{pop}</div></div></section>'''
 
-    learn_sec = f'''<section class="sec"><div class="container two-col">
-  <div>{section_head("Compliance calendar", "Upcoming due dates", "The next statutory deadlines for GST, income tax, TDS, PF/ESI and company law. Past dates drop off automatically.")}
-    <div class="ledger-box">{ledger_html(COMP)}<p class="ledger-note">{E(COMP.get("note",""))}</p></div>
-    <a class="btn btn-ghost" href="/compliance-calendar.html">{ico("cal")}See the full calendar</a></div>
-  <div class="news-box"><div class="news-head"><h3>Compliance news</h3><a class="link-arrow" href="/news.html">All updates{ico("arrow")}</a></div>{"".join(news_item(n) for n in news[:4])}</div>
+    learn_sec = f'''<section class="sec sec-due"><div class="container">
+  <div class="due-head"><div><p class="eyebrow">Compliance calendar</p><h2>Upcoming due dates</h2></div><a class="link-arrow" href="/compliance-calendar.html">Full calendar{ico("arrow")}</a></div>
+  {ledger_html(COMP, n=4, cls="ledger ledger-strip")}
+  <p class="due-note">{E(COMP.get("note",""))}</p>
+  <div class="due-head due-head-sm"><h3>Compliance news</h3><a class="link-arrow" href="/news.html">All updates{ico("arrow")}</a></div>
+  <div class="news-grid">{"".join(news_item(n) for n in news[:4])}</div>
 </div></section>'''
 
     blog_sec = ""
@@ -674,9 +675,9 @@ def load_compliance():
     data["items"].sort(key=lambda i: i["date"])
     return data
 
-def ledger_html(comp, n=6):
-    lis = "".join(f'<li data-date="{i["date"]}" data-law="{EA(i["law"])}"><time datetime="{i["date"]}"><b>{i["date"][8:10]}</b>{MONTHS[int(i["date"][5:7])]}</time><span><small>{E(i["law"])}</small>{E(i["what"])}</span></li>' for i in comp["items"])
-    return f'<ol class="ledger" data-upcoming="{n}" data-compliance-src="{COMPLIANCE_SRC}">{lis}</ol>'
+def ledger_html(comp, n=6, cls="ledger"):
+    lis = "".join(f'<li data-date="{i["date"]}" data-law="{EA(i["law"])}" title="{EA(i["what"])}"><time datetime="{i["date"]}"><b>{i["date"][8:10]}</b>{MONTHS[int(i["date"][5:7])]}</time><span><small>{E(i["law"])}</small>{E(i["what"])}</span></li>' for i in comp["items"])
+    return f'<ol class="{cls}" data-upcoming="{n}" data-compliance-src="{COMPLIANCE_SRC}">{lis}</ol>'
 
 # ----------------------------------------------------------------- MAIN
 if __name__ == "__main__":
