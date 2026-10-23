@@ -31,3 +31,20 @@ collections:
           - "Legal Documentation & Agreements"
           - "Fundraising & Advisory"
       - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "news"
+    label: "Compliance News"
+    label_singular: "News Item"
+    folder: "content/news"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} — {{date}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Date", name: "date", widget: "date", format: "YYYY-MM-DD" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: ["GST", "Income Tax", "TDS", "Company Law", "Labour Law", "Licences", "Other"]
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "One sentence shown on the home page and news list." }
+      - { label: "Body", name: "body", widget: "markdown" }
