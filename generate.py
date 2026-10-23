@@ -506,12 +506,10 @@ def build_home(posts, news):
   {section_head("Popular services", "What most of our clients come to us for", link=("Browse all services", "/services/index.html"))}
   <div class="svc-grid">{pop}</div></div></section>'''
 
-    # calendar teaser
-    from site_pages import MONTHLY_DUE
-    cal = "".join(f'<li><span class="day">{d}</span><span>{E(w)}</span></li>' for d, w, _ in MONTHLY_DUE[:8])
     learn_sec = f'''<section class="sec"><div class="container two-col">
-  <div>{section_head("Compliance calendar", "Every month, the same dates come round", "These recurring due dates apply to most GST-registered businesses and employers. Miss one and late fees or interest start the next day.")}
-    <ul class="cal-list">{cal}</ul><a class="btn btn-ghost" href="/compliance-calendar.html">{ico("cal")}See the full calendar</a></div>
+  <div>{section_head("Compliance calendar", "Upcoming due dates", "The next statutory deadlines for GST, income tax, TDS, PF/ESI and company law. Past dates drop off automatically.")}
+    <div class="ledger-box">{ledger_html(COMP)}<p class="ledger-note">{E(COMP.get("note",""))}</p></div>
+    <a class="btn btn-ghost" href="/compliance-calendar.html">{ico("cal")}See the full calendar</a></div>
   <div class="news-box"><div class="news-head"><h3>Compliance news</h3><a class="link-arrow" href="/news.html">All updates{ico("arrow")}</a></div>{"".join(news_item(n) for n in news[:4])}</div>
 </div></section>'''
 
@@ -653,11 +651,40 @@ def write_sitemap(paths):
     write("sitemap.xml", f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n')
     write("robots.txt", f"User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: {SITE_URL}/sitemap.xml\n")
 
+# ----------------------------------------------------------------- COMPLIANCE CALENDAR
+# Dated due dates are shared with kunaldarwani.com: data/compliance.json in that repo is the
+# single source. Each build pulls the latest copy (falling back to the local copy if offline),
+# and the browser refreshes from the same URL, so editing that one file updates both sites.
+COMPLIANCE_SRC = "https://raw.githubusercontent.com/cakunaldarwani-source/kunaldarwani-website/main/data/compliance.json"
+MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+def load_compliance():
+    local = os.path.join(ROOT, "data", "compliance.json")
+    try:
+        import urllib.request
+        with urllib.request.urlopen(COMPLIANCE_SRC, timeout=10) as r:
+            data = json.loads(r.read().decode("utf-8"))
+        assert isinstance(data.get("items"), list) and data["items"]
+        with open(local, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"Compliance calendar: {len(data['items'])} dates synced from kunaldarwani.com")
+    except Exception as e:
+        data = json.load(open(local, encoding="utf-8"))
+        print(f"Compliance calendar: using local copy ({e.__class__.__name__})")
+    data["items"].sort(key=lambda i: i["date"])
+    return data
+
+def ledger_html(comp, n=6):
+    lis = "".join(f'<li data-date="{i["date"]}" data-law="{EA(i["law"])}"><time datetime="{i["date"]}"><b>{i["date"][8:10]}</b>{MONTHS[int(i["date"][5:7])]}</time><span><small>{E(i["law"])}</small>{E(i["what"])}</span></li>' for i in comp["items"])
+    return f'<ol class="ledger" data-upcoming="{n}" data-compliance-src="{COMPLIANCE_SRC}">{lis}</ol>'
+
 # ----------------------------------------------------------------- MAIN
 if __name__ == "__main__":
     posts = load_md("blog")
     news = load_md("news")
-    ctx = dict(page=page, breadcrumb=breadcrumb, page_hero=page_hero, section_head=section_head, cta_band=cta_band,
+    COMP = load_compliance()
+    globals()["COMP"] = COMP
+    ctx = dict(COMP=COMP, ledger_html=ledger_html, COMPLIANCE_SRC=COMPLIANCE_SRC, EA=EA, page=page, breadcrumb=breadcrumb, page_hero=page_hero, section_head=section_head, cta_band=cta_band,
                steps_block=steps_block, stats_band=stats_band, testimonials=testimonials, enquiry_form=enquiry_form,
                faq_html=faq_html, faq_schema=faq_schema, service_card=service_card, ordered=ordered, ico=ico, inr=inr,
                E=E, wa_link=wa_link, fdate=fdate, packages_block=packages_block, SERVICES=SERVICES, CATEGORIES=CATEGORIES,

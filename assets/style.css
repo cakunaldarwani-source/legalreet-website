@@ -407,3 +407,20 @@ td a:hover{text-decoration:underline}
   th,td{padding:10px 12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* compliance calendar ledger (shared data with kunaldarwani.com) */
+.ledger-box{border:1px solid var(--line);border-radius:18px;background:var(--card);overflow:hidden;margin-bottom:22px}
+.ledger{list-style:none;margin:0;padding:0}
+.ledger li{display:grid;grid-template-columns:72px minmax(0,1fr);border-bottom:1px solid var(--line);min-height:62px}
+.ledger time{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-alt);border-right:1px solid var(--line);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.ledger time b{font:700 1.4rem/1 var(--display);color:var(--accent-2);letter-spacing:0}
+.ledger span{padding:10px 16px;align-self:center;font-size:.93rem;line-height:1.4}
+.ledger small{display:block;font:700 .66rem/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--brand-2);margin-bottom:4px}
+.ledger-note{margin:0;padding:12px 16px;font-size:.8rem;color:var(--muted)}
+.law-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.law-chips button{font:600 .86rem var(--sans);padding:8px 14px;border-radius:var(--pill);border:1px solid var(--line-2);background:var(--card);color:var(--ink);cursor:pointer}
+.law-chips button.is-on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.cal-dated td.day{white-space:nowrap}
+.cal-dated tr.is-past td{opacity:.45}
+.show-past{display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ledger small{color:var(--accent)}}

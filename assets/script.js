@@ -65,6 +65,45 @@
     });
   }
 
+
+  // ---- compliance calendar (shared with kunaldarwani.com)
+  var MON=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var today=new Date(); today.setHours(0,0,0,0);
+  function dt(s){ var p=s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
+  var ledger=document.querySelector('.ledger'), table=document.querySelector('.cal-dated'), showPast=document.getElementById('showPast'), lawSel='all';
+  function el(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+  function applyLedger(){
+    if(!ledger) return; var n=+ledger.getAttribute('data-upcoming')||6, shown=0;
+    ledger.querySelectorAll('li').forEach(function(li){ var ok=dt(li.dataset.date)>=today && shown<n; if(ok) shown++; li.hidden=!ok; });
+  }
+  function applyTable(){
+    if(!table) return; var any=false;
+    table.querySelectorAll('tr[data-date]').forEach(function(tr){
+      var past=dt(tr.dataset.date)<today; tr.classList.toggle('is-past',past);
+      var hide=(past && !(showPast&&showPast.checked)) || (lawSel!=='all' && tr.dataset.law!==lawSel);
+      tr.hidden=hide; if(!hide) any=true;
+    });
+  }
+  function render(items){
+    items=items.filter(function(i){ return i && /^\d{4}-\d{2}-\d{2}$/.test(i.date) && i.law && i.what; }).sort(function(a,b){ return a.date<b.date?-1:1; });
+    if(!items.length) return;
+    if(ledger){ ledger.textContent=''; items.forEach(function(i){
+      var li=el('li'); li.dataset.date=i.date; li.dataset.law=i.law;
+      var t=el('time'); t.setAttribute('datetime',i.date); t.appendChild(el('b',null,i.date.slice(8,10))); t.appendChild(document.createTextNode(MON[+i.date.slice(5,7)]));
+      var sp=el('span'); sp.appendChild(el('small',null,i.law)); sp.appendChild(document.createTextNode(i.what));
+      li.appendChild(t); li.appendChild(sp); ledger.appendChild(li); }); applyLedger(); }
+    if(table){ var tb=table.querySelector('tbody'); tb.textContent=''; items.forEach(function(i){
+      var tr=el('tr'); tr.dataset.date=i.date; tr.dataset.law=i.law; var d=dt(i.date);
+      tr.appendChild(el('td','day',('0'+d.getDate()).slice(-2)+' '+MON[d.getMonth()+1]+' '+d.getFullYear()));
+      var td=el('td'); td.appendChild(el('span','tag',i.law)); tr.appendChild(td); tr.appendChild(el('td',null,i.what)); tb.appendChild(tr); }); applyTable(); }
+  }
+  applyLedger(); applyTable();
+  showPast && showPast.addEventListener('change', applyTable);
+  document.querySelectorAll('[data-law-filter]').forEach(function(b){ b.addEventListener('click', function(){
+    lawSel=b.getAttribute('data-law-filter'); document.querySelectorAll('[data-law-filter]').forEach(function(x){ x.classList.toggle('is-on', x===b); }); applyTable(); }); });
+  var src=(ledger||table)&&(ledger||table).getAttribute('data-compliance-src');
+  if(src && window.fetch){ fetch(src,{cache:'no-cache'}).then(function(r){ return r.ok?r.json():null; }).then(function(d){ if(d&&d.items) render(d.items); }).catch(function(){}); }
+
   // ---- cookie consent
   var KEY='legalreet_consent', banner=document.getElementById('cookieBanner'), stored=null;
   try { stored = localStorage.getItem(KEY); } catch(e){}

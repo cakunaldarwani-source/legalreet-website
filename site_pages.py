@@ -196,9 +196,16 @@ def build_extra_pages(c):
     # ------------------------------------------------------------ CALENDAR
     mrows = "".join(f'<tr><td class="day">{d}</td><td>{w}</td><td>{who}</td></tr>' for d, w, who in MONTHLY_DUE)
     arows = "".join(f'<tr><td class="day">{d}</td><td>{w}</td><td>{who}</td></tr>' for d, w, who in ANNUAL_DUE)
+    COMP, EA = c["COMP"], c["EA"]
+    laws = sorted({i["law"] for i in COMP["items"]})
+    chips = '<button type="button" class="is-on" data-law-filter="all">All</button>' + "".join(f'<button type="button" data-law-filter="{EA(l)}">{E(l)}</button>' for l in laws)
+    drows = "".join(f'<tr data-date="{i["date"]}" data-law="{EA(i["law"])}"><td class="day">{c["fdate"](i["date"], "%d %b %Y")}</td><td><span class="tag">{E(i["law"])}</span></td><td>{E(i["what"])}</td></tr>' for i in COMP["items"])
     cal = f'''<section class="sec"><div class="container narrow">
-  <div class="note-card warn"><h4>Current extension (AY 2026-27)</h4><p>CBDT Circular No. 07/2026 extended the tax audit report due date to 21 October 2026 and the income tax return due date for covered audit cases to 21 November 2026. Transfer-pricing cases are not covered. <a href="/news.html">Read the update</a>.</p></div>
-  {sh("Every month", "Recurring monthly due dates")}
+  {sh("Dated calendar", "Upcoming due dates", E(COMP.get("note","")))}
+  <div class="law-chips" role="group" aria-label="Filter by law">{chips}</div>
+  <div class="table-wrap"><table class="cal-table cal-dated" data-compliance-src="{c["COMPLIANCE_SRC"]}"><thead><tr><th>Due date</th><th>Law</th><th>Compliance</th></tr></thead><tbody>{drows}</tbody></table></div>
+  <p class="muted"><label class="show-past"><input type="checkbox" id="showPast"> Show dates that have passed</label></p>
+  {sh("Reference", "Recurring monthly due dates")}
   <div class="table-wrap"><table class="cal-table"><thead><tr><th>Due by</th><th>Compliance</th><th>Applies to</th></tr></thead><tbody>{mrows}</tbody></table></div>
   {sh("Through the year", "Key annual and quarterly due dates")}
   <div class="table-wrap"><table class="cal-table"><thead><tr><th>Due by</th><th>Compliance</th><th>Applies to</th></tr></thead><tbody>{arows}</tbody></table></div>
